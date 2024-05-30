@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-  <head>
+<head>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -11,24 +11,16 @@
 
     <title>Smart Farming</title>
 
-
     <!-- Additional CSS Files -->
     <link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css">
-
     <link rel="stylesheet" type="text/css" href="static/css/font-awesome.css">
-
     <link rel="stylesheet" href="static/css/templatemo-breezed.css">
-
     <link rel="stylesheet" href="static/css/owl-carousel.css">
-
     <link rel="stylesheet" href="static/css/lightbox.css">
-
-
-
-
-    </head>
+    <link rel="stylesheet" href="static/css/logButtons.css">
+</head>
     
-    <body>
+<body>
     
     <!-- ***** Preloader Start ***** -->
     <div id="preloader">
@@ -39,6 +31,7 @@
         </div>
     </div>  
     <!-- ***** Preloader End ***** -->
+
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -63,9 +56,10 @@
                         <!-- ***** Menu Start ***** -->
                         <ul class="nav">
                             <li class="scroll-to-section"><a href="#top" class="active">Home</a></li>
-
                             <li class="scroll-to-section"><a href="#contact-us">Contact Us</a></li> 
-
+                            {% if current_user.is_authenticated %}
+                                <li><a href="/logout">Logout</a></li>
+                            {% endif %}
                         </ul>        
                         <a class='menu-trigger'>
                             <span>Menu</span>
@@ -78,7 +72,6 @@
     </header>
     <!-- ***** Header Area End ***** -->
     
-
     <!-- ***** Main Banner Area Start ***** -->
     <div class="main-banner header-text" id="top">
         <div class="Modern-Slider">
@@ -122,19 +115,28 @@
           <!-- // Item -->
         </div>
     </div>
+        <!-- ***** Main Banner Area End ***** -->
+    {% if not current_user.is_authenticated %}
+    <div class="button-container">
+        <p>If you have an account, please log in:</p>
+        <a href="/login" class="btn-green">Login</a>
+        <p>If you don't have an account, register here:</p>
+        <a href="/register" class="btn-outline-green">Register</a>
+    </div>
+    {% endif %}
+    
+    {% if current_user.is_authenticated %}
+    <!-- ***** Only for logged-in users ***** -->
     <div class="scroll-down scroll-to-section"><a href="#testimonials"><i class="fa fa-arrow-down"></i></a></div>
-    <!-- ***** Main Banner Area End ***** -->
-
-<!-- ***** Testimonials Starts ***** -->
-<section class="section" id="testimonials">
-    <div class="container">
-        <div class="section-heading">
-            <h6>Artificial Intelligence in agriculture not only helps automate farming but also enables precise cultivation, leading to higher crop yield and better quality while using fewer resources. Companies involved in improving machine learning or Artificial Intelligence-based products or services, like training data for agriculture, drones, and automated machines, will provide more useful applications to this sector, helping the world deal with food production issues for the growing population.</h6>
-            <h2>Using Modern Day Artificial Intelligence to Solve Traditional Farming Problems</h2>
-        </div>
-        <div class="row">
-            <!-- General Plant Disease Detection -->
-            <div class="col-lg-5 col-md-5 col-sm-5">
+    <section class="section" id="testimonials">
+        <div class="container">
+            <div class="section-heading">
+                <h6>Artificial Intelligence in agriculture not only helps automate farming but also enables precise cultivation, leading to higher crop yield and better quality while using fewer resources. Companies involved in improving machine learning or Artificial Intelligence-based products or services, like training data for agriculture, drones, and automated machines, will provide more useful applications to this sector, helping the world deal with food production issues for the growing population.</h6>
+                <h2>Using Modern Day Artificial Intelligence to Solve Traditional Farming Problems</h2>
+            </div>
+            <div class="row">
+                <!-- General Plant Disease Detection -->
+                <div class="col-lg-5 col-md-5 col-sm-5">
                     <div class="item author-item">
                         <div class="member-thumb">
                             <img src="static/images/home1.jpg" alt="">
@@ -153,11 +155,10 @@
                             Learn More <i class="fa fa-arrow-right"> </i>
                         </a>
                     </div>  
-    
-            </div>
-            <div class="col-lg-2 col-md-2 col-sm-2"></div>
-            <!-- Specific Plant Disease Detection -->
-            <div class="col-lg-5 col-md-5 col-sm-5">
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2"></div>
+                <!-- Specific Plant Disease Detection -->
+                <div class="col-lg-5 col-md-5 col-sm-5">
                     <div class="item author-item">
                         <div class="member-thumb">
                             <img src="static/images/home2.jpg" alt="">
@@ -176,73 +177,71 @@
                             Learn More <i class="fa fa-arrow-right"> </i>
                         </a>
                     </div>        
-
+                </div>
             </div>
         </div>
-    </div>
-</section>
-<!-- ***** Testimonials Ends ***** -->
+    </section>
+    {% endif %}
 
     <!-- ***** Contact Us Area Starts ***** -->
-<section class="section" id="contact-us">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-4 col-md-4 col-xs-12">
-                <div class="left-text-content">
-                    <div class="section-heading">
-                        <h6>Contact Us</h6>
-                        <h2>Feel free to keep in touch with us!</h2>
+    <section class="section" id="contact-us">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-4 col-xs-12">
+                    <div class="left-text-content">
+                        <div class="section-heading">
+                            <h6>Contact Us</h6>
+                            <h2>Feel free to keep in touch with us!</h2>
+                        </div>
+                        <ul class="contact-info">
+                            <li><img src="static/images/contact-info-01.png" alt="">+216-50405362</li>
+                            <li><img src="static/images/contact-info-02.png" alt="">asmaelhaj56@gmail.com</li>
+                        </ul>
                     </div>
-                    <ul class="contact-info">
-                        <li><img src="static/images/contact-info-01.png" alt="">+216-50405362</li>
-                        <li><img src="static/images/contact-info-02.png" alt="">asmaelhaj56@gmail.com</li>
-                    </ul>
                 </div>
-            </div>
-            <div class="col-lg-8 col-md-8 col-xs-12">
-                <div class="contact-form">
-                    <form id="contact" action="/data" method="POST">
-                      <div class="row">
-                        <div class="col-md-6 col-sm-12">
-                          <fieldset>
-                            <input name="name" type="text" id="name" placeholder="Your Name *" required="">
-                          </fieldset>
-                        </div>
-                        <div class="col-md-6 col-sm-12">
-                          <fieldset>
-                            <input name="phone" type="text" id="phone" placeholder="Your Phone" required="">
-                          </fieldset>
-                        </div>
-                        <div class="col-md-6 col-sm-12">
-                          <fieldset>
-                            <input name="email" type="email" id="email" placeholder="Your Email *" required="">
-                          </fieldset>
-                        </div>
-                        <div class="col-md-6 col-sm-12">
-                          <fieldset>
-                            <input name="subject" type="text" id="subject" placeholder="Subject">
-                          </fieldset>
-                        </div>
-                        <div class="col-lg-12">
-                          <fieldset>
-                            <textarea name="message" rows="6" id="message" placeholder="Message" required=""></textarea>
-                          </fieldset>
-                        </div>
-                        <div class="col-lg-12">
-                          <fieldset>
-                            <button type="submit" id="form-submit" class="main-button-icon">Send Message Now <i class="fa fa-arrow-right"></i></button>
-                          </fieldset>
-                        </div>
-                      </div>
-                    </form>
+                <div class="col-lg-8 col-md-8 col-xs-12">
+                    <div class="contact-form">
+                        <form id="contact" action="/data" method="POST">
+                            <div class="row">
+                                <div class="col-md-6 col-sm-12">
+                                    <fieldset>
+                                        <input name="name" type="text" id="name" placeholder="Your Name *" required="">
+                                    </fieldset>
+                                </div>
+                                <div class="col-md-6 col-sm-12">
+                                    <fieldset>
+                                        <input name="phone" type="text" id="phone" placeholder="Your Phone" required="">
+                                    </fieldset>
+                                </div>
+                                <div class="col-md-6 col-sm-12">
+                                    <fieldset>
+                                        <input name="email" type="email" id="email" placeholder="Your Email *" required="">
+                                    </fieldset>
+                                </div>
+                                <div class="col-md-6 col-sm-12">
+                                    <fieldset>
+                                        <input name="subject" type="text" id="subject" placeholder="Subject">
+                                    </fieldset>
+                                </div>
+                                <div class="col-lg-12">
+                                    <fieldset>
+                                        <textarea name="message" rows="6" id="message" placeholder="Message" required=""></textarea>
+                                    </fieldset>
+                                </div>
+                                <div class="col-lg-12">
+                                    <fieldset>
+                                        <button type="submit" id="form-submit" class="main-button-icon">Send Message Now <i class="fa fa-arrow-right"></i></button>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
-<!-- ***** Contact Us Area Ends ***** -->
+    </section>
+    <!-- ***** Contact Us Area Ends ***** -->
 
-    
     <!-- ***** Footer Start ***** -->
     <footer>
         <div class="container">
@@ -250,7 +249,6 @@
                 <div class="col-lg-6 col-xs-12">
                     <div class="left-text-content">
                         <p>Copyright &copy; 2k24
-                        
                         - Design: <a href="#">asma_elhadj</a></p>
                     </div>
                 </div>
@@ -268,7 +266,6 @@
             </div>
         </div>
     </footer>
-    
 
     <!-- jQuery -->
     <script src="static/js/jquery-2.1.0.min.js"></script>
@@ -317,5 +314,5 @@
             }, 5000);
         });
     </script>
-  </body>
+</body>
 </html>

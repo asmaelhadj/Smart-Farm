@@ -361,7 +361,7 @@ header
 
 .header-area .main-nav .logo {
   line-height: 80px;
-  color: #f90000;;
+  color: #1e5513;;
   font-size: 28px;
   font-weight: 700;
   text-transform: uppercase;
@@ -439,18 +439,17 @@ header
 }
 
 .header-area .main-nav .nav li a {
-  color: #fff;
+  color: #2e8b3a;
 }
 
 .header-area .main-nav .nav li:hover a,
 .header-area .main-nav .nav li a.active {
-  color: #fff!important;
-  opacity: 0.5;
+  color: #2e8b3a!important;
 }
 
 .background-header .main-nav .nav li:hover a,
 .background-header .main-nav .nav li a.active {
-  color: #5fb759!important;
+  color: #2e8b3a!important;
   opacity: 1;
 }
 
@@ -647,7 +646,7 @@ header
 }
 
 .header-area.header-sticky .nav li a.active {
-  color: #5fb759;
+  color: #2e8b3a;
 }
 
 @media (max-width: 1200px) {

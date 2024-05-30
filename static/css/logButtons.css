@@ -1,0 +1,49 @@
+.btn-green {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 10px;
+}
+
+.btn-green:hover {
+    background-color: #218838;
+}
+
+.btn-outline-green {
+    background-color: transparent;
+    color: #28a745;
+    border: 2px solid #28a745;
+    padding: 15px 30px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    margin: 10px;
+}
+
+.btn-outline-green:hover {
+    background-color: #28a745;
+    color: white;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.button-container a {
+    margin: 10px 0;
+}
+
+.button-container p {
+    font-size: 18px;
+    margin: 10px 0;
+    color: #555;
+}

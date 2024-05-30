@@ -8,7 +8,14 @@ from keras.models import load_model
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
 import os
-
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import InputRequired, Email
+from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.exc import IntegrityError
 # Load environment variables from .env file
 load_dotenv()
 
@@ -26,6 +33,13 @@ app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 1
 
 app.secret_key = os.getenv('SECRET_KEY')  # Generates a random secret key each time the app starts
 
+# Define the base directory of the application
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+# Configure SQLite database URI
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:1234@localhost/farm'
+
+
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
@@ -34,7 +48,83 @@ app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
 
+# Initialize extensions
+db = SQLAlchemy(app)
 mail = Mail(app)
+
+#define database models
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+
+    def __repr__(self):
+        return f"User('{self.username}', '{self.email}')"
+
+migrate = Migrate(app, db)
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+# Registration Form
+class RegistrationForm(FlaskForm):
+    username = StringField('Username', validators=[InputRequired()])
+    email = StringField('Email', validators=[InputRequired(), Email()])
+    password = PasswordField('Password', validators=[InputRequired()])
+    submit = SubmitField('Register')
+
+# Registration Route
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()  # Creating an instance of the form
+    if request.method == 'POST':
+        if form.validate_on_submit():  # Checking if the form is valid
+            username = form.username.data
+            email = form.email.data
+            password = form.password.data
+            try:
+                user = User(username=username, email=email, password=password)
+                db.session.add(user)
+                db.session.commit()
+                flash('Registration successful!', 'success')
+                return redirect(url_for('login'))
+            except IntegrityError:
+                db.session.rollback()
+                flash('Email already exists. Please use a different email.', 'danger')
+    return render_template('register.html', form=form)  # Passing the form object to the template
+
+# Login Form
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[InputRequired()])
+    password = PasswordField('Password', validators=[InputRequired()])
+    submit = SubmitField('Login')
+
+# Login Route
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user and check_password_hash(user.password, form.password.data):
+            login_user(user)
+            flash('Login successful!', 'success')
+            return redirect(url_for('home'))
+        else:
+            flash('Invalid username or password. Please try again.', 'danger')
+    return render_template('login.html', form=form)
+
+# Logout Route
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('home'))
 
 @app.route('/')
 def home():
