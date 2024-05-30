@@ -50,10 +50,9 @@ mail = Mail(app)"""
 @app.route('/')
 def home():
     # Sender and Recipient Email Addresses
-    recipient_email = 'asmabelhaj03@gmail.com'
     msg = Message( 
                 'Hello', 
-                recipients = [recipient_email] 
+                recipients = ['asmabelhaj03@gmail.com'] 
                ) 
     msg.body = 'Hello Flask message sent from Flask-Mail'
     mail.send(msg) 
