@@ -24,17 +24,7 @@ COUNT = 0
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 1
 
-   
-# configuration of mail 
-app.config['MAIL_SERVER']='smtp.sendgrid.net'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USERNAME'] = 'apikey'
-app.config['MAIL_PASSWORD'] = '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'
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_DEFAULT_SENDER'] = 'asmaelhaj56@gmail.com'
-mail = Mail(app) 
-   
-"""app.secret_key = os.getenv('SECRET_KEY')
+app.secret_key = os.getenv('SECRET_KEY')  # Generates a random secret key each time the app starts
 
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
@@ -42,22 +32,12 @@ app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS').lower() in ['true', '1', 't']
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
 
-mail = Mail(app)"""
-
-
+mail = Mail(app)
 
 @app.route('/')
 def home():
-    # Sender and Recipient Email Addresses
-    msg = Message( 
-                'Hello', 
-                recipients = ['asmabelhaj03@gmail.com'] 
-               ) 
-    msg.body = 'Hello Flask message sent from Flask-Mail'
-    mail.send(msg) 
-
-    print('Test email sent successfully!')
     return render_template('index.html')
 
 @app.route('/data', methods=['POST'])
@@ -68,7 +48,7 @@ def data():
     subject = request.form['subject']
     message = request.form['message']
 
-    msg = Message(subject=subject, sender=email, recipients=['asmaelhaj56@gmail.com'])
+    msg = Message(subject=subject, recipients=['asmabelhaj03@gmail.com'])
     msg.body = f"Name: {name}\nPhone: {phone}\nEmail: {email}\n\nMessage:\n{message}"
     
     try:
@@ -76,8 +56,8 @@ def data():
         flash('Message sent successfully!', 'success')
     except Exception as e:
         flash(f'Failed to send message: {e}', 'danger')
-    
-    return redirect(url_for('home'))
+
+    return render_template('index.html')
 
 @app.route('/leaf_detection')
 def leaf_detection():

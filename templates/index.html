@@ -39,7 +39,15 @@
         </div>
     </div>  
     <!-- ***** Preloader End ***** -->
-    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
     
     <!-- ***** Header Area Start ***** -->
     <header class="header-area header-sticky">
@@ -299,6 +307,15 @@
         });
 
     </script>
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    alert.remove();
+                });
+            }, 5000);
+        });
+    </script>
   </body>
 </html>
