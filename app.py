@@ -210,16 +210,22 @@ def inputtomato():
 
 @app.route('/diseases')
 def list_diseases():
-    query = request.args.get('query')
     plant_type = request.args.get('plant_type')
-    diseases = Disease.query
+    disease_name = request.args.get('disease_name')
 
-    if query:
-        diseases = diseases.filter(Disease.name.contains(query))
+    query = db.session.query(Disease)
+
     if plant_type:
-        diseases = diseases.filter_by(plant_type=plant_type)
+        query = query.filter(Disease.plant_type.ilike(f'%{plant_type}%'))
+    
+    if disease_name:
+        query = query.filter(Disease.name.ilike(f'%{disease_name}%'))
+    
+    diseases = query.all()
+    # Extract unique plant types from the filtered diseases
+    plant_types = list(set(disease.plant_type for disease in diseases))
 
-    return render_template('diseases.html', diseases=diseases.all())
+    return render_template('diseases.html', diseases=diseases, plant_types=plant_types)
 
 @app.route('/disease/<int:disease_id>')
 def disease_detail(disease_id):
