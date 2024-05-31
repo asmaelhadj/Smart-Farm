@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Plant Diseases</title>
+</head>
+<body>
+    <h1>Plant Diseases</h1>
+    <form method="get">
+        <input type="text" name="query" placeholder="Search for diseases...">
+        <input type="text" name="plant_type" placeholder="Plant type...">
+        <button type="submit">Search</button>
+    </form>
+    <ul>
+        {% for disease in diseases %}
+        <li><a href="/disease/{{ disease.id }}">{{ disease.name }}</a> ({{ disease.plant_type }})</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Posts</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <h1>Posts</h1>
+    <form action="/create_post" method="POST">
+        <textarea name="content" placeholder="What's on your mind?" required></textarea>
+        <button type="submit">Post</button>
+    </form>
+    <div id="posts">
+        {% for post in posts %}
+            <div id="post_{{ post.id }}">
+                <p>{{ post.content }} by {{ post.user.username }}</p>
+                <a href="/post/{{ post.id }}">View</a>
+            </div>
+        {% endfor %}
+    </div>
+    <script>
+        var socket = io();
+        socket.on('new_post', function(data) {
+            var posts = document.getElementById('posts');
+            var post = document.createElement('div');
+            post.innerHTML = `<p>${data.content} by ${data.username}</p>`;
+            posts.insertBefore(post, posts.firstChild);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Post</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <h1>{{ post.content }} by {{ post.user.username }}</h1>
+    <form action="/post/{{ post.id }}" method="POST">
+        <textarea name="content" placeholder="Comment..." required></textarea>
+        <button type="submit">Comment</button>
+    </form>
+    <div id="comments">
+        {% for comment in post.comments %}
+            <div id="comment_{{ comment.id }}">
+                <p>{{ comment.content }} by {{ comment.user.username }}</p>
+            </div>
+        {% endfor %}
+    </div>
+    <div id="reactions">
+        <a href="/react/{{ post.id }}/like">Like</a>
+        <a href="/react/{{ post.id }}/dislike">Dislike</a>
+        <a href="/react/{{ post.id }}/love">Love</a>
+    </div>
+    <script>
+        var socket = io();
+        socket.on('new_comment', function(data) {
+            if (data.post_id == {{ post.id }}) {
+                var comments = document.getElementById('comments');
+                var comment = document.createElement('div');
+                comment.innerHTML = `<p>${data.content} by ${data.username}</p>`;
+                comments.insertBefore(comment, comments.firstChild);
+            }
+        });
+        socket.on('new_reaction', function(data) {
+            if (data.post_id == {{ post.id }}) {
+                var reactions = document.getElementById('reactions');
+                var reaction = document.createElement('div');
+                reaction.innerHTML = `<p>${data.reaction_type} by ${data.username}</p>`;
+                reactions.insertBefore(reaction, reactions.firstChild);
+            }
+        });
+    </script>
+</body>
+</html>
