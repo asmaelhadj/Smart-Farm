@@ -12,14 +12,10 @@
 
     </head>
     <body>
+        <div class='cont' >
+            <h1>Potato Plant Leaf Disease Detection</h1>
+        </div>
         <center>
-
-            <div class='cont' >
-                <h2>बटाट्याच्या पानावर रोग आहे का नाही ते तपासा </h2><br><br>
-                <h2>Potato Plant Leaf Disease Detection</h2>
-            </div>
-
-
         <form method="POST" action="{{url_for('predictionpotato')}}" enctype="multipart/form-data">
             <input type="file" name='image' class='btn'><br><br><br>
             <input type="submit" class='btn'>
@@ -28,47 +24,6 @@
 
 
     </center>
-         <div class="footer">
-            <p><br>| Designed by | er_vishuu_vi__jaya | 2021 | </p>
-         </div>
-
-
-
-    <div class="popup">
-        <div class="content">
-            <h1 id="Heading"><span> सूचना / Warnining</span><br><br>येथे तुम्ही फक्त बटाट्याच्या पानाचा फोटो द्या <br>You just need to give photos of Potato Plants.</h1>
-            <button onclick="toggle()" class="submitId2"> Ok!!!</button>
-        </div>
-    </div>
-
-    <script>
-
-        const container = document.querySelector(".container");
-        const popup = document.querySelector('.popup');
-        const submitId2 = document.querySelector(".submitId2");
-        window.onload = function () {
-            setTimeout(function () {
-                // popup.style.display = "block";
-                popup.style.top = "50%";
-                popup.style.visibility = "visible";
-                popup.style.opacity = "1";
-                popup.style.transition = "0.5s";
-                container.style.filter ="blur(10px)";
-
-            }, 1000)
-
-        }
-
-        function toggle(){
-            popup.style.top = "40%";
-            popup.style.visibility = "hidden";
-            popup.style.opacity = "0";
-            popup.style.transition = "0.5s";
-            container.style.filter ="blur(0px)";
-        }
-
-
-    </script>
 
     </body>
 </html>

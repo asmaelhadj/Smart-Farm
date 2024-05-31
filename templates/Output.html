@@ -1,33 +1,69 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prediction Result</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            padding: 20px;
+            background-color: #e8f5e9; /* Light green background */
         }
-        h1, h2 {
-            color: #333;
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff; /* White background for container */
         }
-        p {
-            font-size: 1.2em;
+        .result-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2e7d32; /* Dark green text color */
         }
-        img {
-            max-width: 500px;
-            margin: 10px 0;
+        .alert-info {
+            background-color: #a5d6a7; /* Light green background for alert */
+            color: #1b5e20; /* Dark green text color for alert */
+        }
+        .result-img, .probability-plot {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .btn-primary {
+            background-color: #388e3c; /* Green background for button */
+            border-color: #2e7d32; /* Green border for button */
+        }
+        .btn-primary:hover {
+            background-color: #2e7d32; /* Darker green on hover */
+            border-color: #1b5e20; /* Darker border on hover */
         }
     </style>
 </head>
 <body>
-    <center>
-        <h1>Prediction Result</h1>
-        <p><strong>Disease:</strong> {{ data[0] }}</p>
-        <p><strong>Probability:</strong> {{ data[1] }}</p>
-        <h2>Uploaded Image:</h2>
-        <img src="{{ url_for('static', filename=data[3].split('static/')[1]) }}" alt="Uploaded Image">
-        <h2>Prediction Probabilities:</h2>
-        <img src="{{ url_for('static', filename=data[2].split('static/')[1]) }}" alt="Probability Plot">
-        </center>
+    <div class="container">
+        <div class="result-header">
+            <h1 class="display-4">Prediction Result</h1>
+        </div>
+        <div class="alert alert-info">
+            <p><strong>Disease:</strong> {{ data[0] }}</p>
+            <p><strong>Probability:</strong> {{ '%.2f' | format(data[1]) }}</p>
+        </div>
+        <div class="result-img">
+            <h5>Uploaded Image:</h5>
+            <img src="{{ url_for('static', filename=data[3].split('static/')[1]) }}" alt="Uploaded Image" class="img-fluid rounded">
+        </div>
+        <div class="probability-plot">
+            <h5>Prediction Probabilities:</h5>
+            <img src="{{ url_for('static', filename=data[2].split('static/')[1]) }}" alt="Probability Plot" class="img-fluid rounded">
+        </div>
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-primary">Upload Another Image</a>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

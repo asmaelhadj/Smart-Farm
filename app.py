@@ -19,6 +19,7 @@ from sqlalchemy.exc import IntegrityError
 import matplotlib.pyplot as plt
 import seaborn as sns
 from flask_socketio import SocketIO, send, emit
+import tensorflow as tf
 # Load environment variables from .env file
 load_dotenv()
 
@@ -225,62 +226,19 @@ def disease_detail(disease_id):
     disease = Disease.query.get_or_404(disease_id)
     return render_template('disease_detail.html', disease=disease)
 
-@app.route('/predictioncotton',methods = ['POST'])
-def predictioncotton():
-    global COUNT
-    img = request.files['image']
+def preprocess_image(image_path):
+    img_arr = cv2.imread(image_path)
+    img_arr = cv2.cvtColor(img_arr, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
+    img_arr = tf.convert_to_tensor(img_arr, dtype=tf.float32)
+    img_arr = tf.image.resize(img_arr, [224, 224]) / 255.0  # Resize and rescale
+    img_arr = tf.expand_dims(img_arr, axis=0)  # Add batch dimension
+    return img_arr
 
-    img.save('static/img/{}.jpg'.format(COUNT))
-    img_arr = cv2.imread('static/img/{}.jpg'.format(COUNT))
-
-    img_arr = cv2.resize(img_arr, (224, 224))
-    img_arr = img_arr / 255.0
-    img_arr = img_arr.reshape(1, 224, 224, 3)
-    predictions = model_cotton.predict(img_arr)
-    prediction=np.argmax(predictions, axis=1)
-    print(prediction[0])
-    #
-    # x = round(prediction[0])
-    # # y = round(prediction[0, 1], 2)
-    # preds = np.array([x])
-    COUNT += 1
-    if prediction[0] == 0:
-        # cv2.imwrite('static/images/{}.jpg'.format(COUNT), img)
-        return render_template('Output.html', data=["diseased cotton leaf", 'green'])
-    elif prediction[0] == 1:
-        # cv2.imwrite('static/images/{}.jpg'.format(COUNT), img)
-        return render_template('Output.html', data=["diseased cotton plant", 'red'])
-    elif prediction[0] == 2:
-        # cv2.imwrite('static/images/{}.jpg'.format(COUNT), img)
-        return render_template('Output.html', data=["fresh cotton leaf", 'red'])
-    else:
-        # cv2.imwrite('static/images/{}.jpg'.format(COUNT), img)
-        return render_template('Output.html', data=["fresh cotton plant", 'red'])
-
-
-@app.route('/predictioncorn', methods=['POST'])
-def predictioncorn():
-    global COUNT
-    img = request.files['image']
-    img_path = f'static/img/{COUNT}.jpg'
-    img.save(img_path)
-    
-    # Preprocess the image
-    img_arr = cv2.imread(img_path)
-    img_arr = cv2.resize(img_arr, (224, 224)) / 255.0
-    img_arr = img_arr.reshape(1, 224, 224, 3)
-    
-    # Make predictions
-    predictions = model_corn.predict(img_arr)
+def predict_and_plot(model, img_arr, result_map, count):
+    predictions = model.predict(img_arr)
     prediction = np.argmax(predictions, axis=1)[0]
     probability = predictions[0][prediction]
 
-    result_map = {
-        0: "Blight",
-        1: "Common Rust",
-        2: "Gray Leaf Spot",
-        3: "Healthy"
-    }
     result = result_map.get(prediction, "Unknown")
 
     # Plot the probabilities
@@ -296,87 +254,104 @@ def predictioncorn():
     plt.xlim(0, 1)
     for index, value in enumerate(probabilities):
         plt.text(value, index, f'{value:.2f}', color='black', ha="left", va="center", fontsize=12)
-    
-    plot_path = f'static/img/{COUNT}_plot.png'
+
+    plot_path = f'static/img/{count}_plot.png'
     plt.savefig(plot_path, bbox_inches='tight', dpi=150)
     plt.close()
 
+    return result, probability, plot_path
+
+@app.route('/predictiongrape', methods=['POST'])
+def predictiongrape():
+    global COUNT
+    img = request.files['image']
+    img_path = f'static/img/{COUNT}.jpg'
+    img.save(img_path)
+    
+    img_arr = preprocess_image(img_path)
+    
+    result_map = {
+        0: "Black Rot",
+        1: "Esca (Black Measles)",
+        2: "Leaf Blight",
+        3: "Healthy"
+    }
+    
+    result, probability, plot_path = predict_and_plot(model_grape, img_arr, result_map, COUNT)
+    
+    COUNT += 1
+    return render_template('Output.html', data=[result, probability, plot_path, img_path])
+
+@app.route('/predictioncorn', methods=['POST'])
+def predictioncorn():
+    global COUNT
+    img = request.files['image']
+    img_path = f'static/img/{COUNT}.jpg'
+    img.save(img_path)
+    
+    img_arr = preprocess_image(img_path)
+    
+    result_map = {
+        0: "Blight",
+        1: "Common Rust",
+        2: "Gray Leaf Spot",
+        3: "Healthy"
+    }
+    
+    result, probability, plot_path = predict_and_plot(model_corn, img_arr, result_map, COUNT)
+    
     COUNT += 1
     return render_template('Output.html', data=[result, probability, plot_path, img_path])
 
 
 
 
-
-@app.route('/predictionpotato',methods = ['POST'])
+@app.route('/predictionpotato', methods=['POST'])
 def predictionpotato():
     global COUNT
     img = request.files['image']
-
-    img.save('static/img/{}.jpg'.format(COUNT))
-    img_arr = cv2.imread('static/img/{}.jpg'.format(COUNT))
-
-    img_arr = cv2.resize(img_arr, (224, 224))
-    img_arr = img_arr / 255.0
-    img_arr = img_arr.reshape(1, 224, 224, 3)
-    predictions = model_potato.predict(img_arr)
-    prediction=np.argmax(predictions, axis=1)
-    print(prediction[0])
-    #
-    # x = round(prediction[0])
-    # # y = round(prediction[0, 1], 2)
-    # preds = np.array([x])
+    img_path = f'static/img/{COUNT}.jpg'
+    img.save(img_path)
+    
+    img_arr = preprocess_image(img_path)
+    
+    result_map = {
+        0: "Early Blight",
+        1: "Late Blight",
+        2: "Healthy"
+    }
+    
+    result, probability, plot_path = predict_and_plot(model_potato, img_arr, result_map, COUNT)
+    
     COUNT += 1
-    if prediction[0] == 0:
-
-        return render_template('Output.html', data=["Potato_Early_blight", 'red'])
-    elif prediction[0] == 1:
-        # cv2.imwrite('static/images/{}.jpg'.format(COUNT), img)
-        return render_template('Output.html', data=["Potato_Late_blight", 'red'])
-
-    else:
-        # cv2.imwrite('static/images/{}.jpg'.format(COUNT), img)
-        return render_template('Output.html', data=["Potato_healthy ", 'red'])
-
-
-
+    return render_template('Output.html', data=[result, probability, plot_path, img_path])
 
 @app.route('/predictiontomato', methods=['POST'])
 def predictiontomato():
     global COUNT
     img = request.files['image']
-
-    img.save('static/img/{}.jpg'.format(COUNT))
-    img_arr = cv2.imread('static/img/{}.jpg'.format(COUNT))
-
-    img_arr = cv2.resize(img_arr, (224, 224))
-    img_arr = img_arr / 255.0
-    img_arr = img_arr.reshape(1, 224, 224, 3)
-    predictions = model_tomato.predict(img_arr)
-    prediction = np.argmax(predictions, axis=1)
-    print(prediction[0])
-
+    img_path = f'static/img/{COUNT}.jpg'
+    img.save(img_path)
+    
+    img_arr = preprocess_image(img_path)
+    
+    result_map = {
+        0: "Bacterial Spot",
+        1: "Early Blight",
+        2: "Late Blight",
+        3: "Leaf Mold",
+        4: "Septoria Leaf Spot",
+        5: "Spider Mites",
+        6: "Target Spot",
+        7: "Yellow Leaf Curl Virus",
+        8: "Mosaic Virus",
+        9: "Healthy"
+    }
+    
+    result, probability, plot_path = predict_and_plot(model_tomato, img_arr, result_map, COUNT)
+    
     COUNT += 1
-    if prediction[0] == 0:
-        return render_template('Output.html', data=["Bacterial_spot"])
-    elif prediction[0] == 1:
-        return render_template('Output.html', data=["Early_blight"])
-    elif prediction[0] == 2:
-        return render_template('Output.html', data=["Late_blight"])
-    elif prediction[0] == 3:
-        return render_template('Output.html', data=["Leaf_Mold"])
-    elif prediction[0] == 4:
-        return render_template('Output.html', data=["Septoria_leaf_spot"])
-    elif prediction[0] == 5:
-        return render_template('Output.html', data=["Spider_mites Two-spotted_spider_mite"])
-    elif prediction[0] == 6:
-        return render_template('Output.html', data=["Target_Spot"])
-    elif prediction[0] == 7:
-        return render_template('Output.html', data=["Tomato_Yellow_Leaf_Curl_Virus"])
-    elif prediction[0] == 8:
-        return render_template('Output.html', data=["Tomato_mosaic_virus"])
-    else:
-        return render_template('Output.html', data=["Healthy"])
+    return render_template('Output.html', data=[result, probability, plot_path, img_path])
 
 
 @app.route('/load_img')

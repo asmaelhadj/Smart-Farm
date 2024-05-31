@@ -1,8 +1,8 @@
 h1{
-    font-size: 30px;
+    font-size: 40px;
     font-family: cursive;
     font-weight: bold;
-    color: crimson;
+    color: rgb(25, 73, 47);
 }
 
 h3{
@@ -25,12 +25,13 @@ img{
     border-color: Black;
 }
 
-body{
-
-
+body {
     background-image: url("corn-index.jpg");
-    margin : 0px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
+
 
 h2{
 font-size: 20px;
@@ -68,12 +69,7 @@ text-align: center;
 
 
 .btn {
-    background: #3DF6A3;
-    background-image: -webkit-linear-gradient(top, #3DF6A3, #D0C31E);
-    background-image: -moz-linear-gradient(top, #3DF6A3, #D0C31E);
-background-image: -ms-linear-gradient(top, #3DF6A3, #D0C31E);
-background-image: -o-linear-gradient(top, #3DF6A3, #D0C31E);
-background-image: linear-gradient(to bottom, #3DF6A3, #D0C31E);
+background: #ecf029;
 -webkit-border-radius: 20px;
 -moz-border-radius: 20px;
 border-radius: 20px;
@@ -96,11 +92,6 @@ text-align: center;
 .btn:hover {
     border: solid #89ED33 1px;
     background: #CAD01E;
-    background-image: -webkit-linear-gradient(top, #CAD01E, #F6EC3D);
-    background-image: -moz-linear-gradient(top, #CAD01E, #F6EC3D);
-    background-image: -ms-linear-gradient(top, #CAD01E, #F6EC3D);
-    background-image: -o-linear-gradient(top, #CAD01E, #F6EC3D);
-    background-image: linear-gradient(to bottom, #CAD01E, #F6EC3D);
     -webkit-border-radius: 20px;
     -moz-border-radius: 20px;
     border-radius: 20px;
@@ -109,7 +100,6 @@ text-align: center;
 
 
 .cont{
-    background-color: #DCDCDC;
     margin : 0px;
     padding:0px;
     height: 100px;
