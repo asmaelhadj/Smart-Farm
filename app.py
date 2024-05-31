@@ -118,9 +118,9 @@ def register():
         if form.validate_on_submit():  # Checking if the form is valid
             username = form.username.data
             email = form.email.data
-            password = form.password.data
+            hashed_password = generate_password_hash(form.password.data)
             try:
-                user = User(username=username, email=email, password=password)
+                user = User(username=username, email=email, password=hashed_password)
                 db.session.add(user)
                 db.session.commit()
                 flash('Registration successful!', 'success')
@@ -399,7 +399,7 @@ def create_post():
         post = Post(content=content, user_id=current_user.id)
         db.session.add(post)
         db.session.commit()
-        socketio.emit('new_post', {'content': content, 'username': current_user.username}, to='/')
+        socketio.emit('new_post', {'content': content, 'username': current_user.username, 'post_id': post.id}, broadcast=True)
     return redirect(url_for('posts'))
 
 @app.route('/post/<int:post_id>', methods=['GET', 'POST'])
@@ -412,7 +412,7 @@ def view_post(post_id):
             comment = Comment(content=content, post_id=post.id, user_id=current_user.id)
             db.session.add(comment)
             db.session.commit()
-            socketio.emit('new_comment', {'content': content, 'username': current_user.username, 'post_id': post.id}, to='/')
+            socketio.emit('new_comment', {'content': content, 'username': current_user.username, 'post_id': post.id}, broadcast=True)
     return render_template('post.html', post=post)
 
 @app.route('/react/<int:post_id>/<reaction_type>')
@@ -421,7 +421,7 @@ def react(post_id, reaction_type):
     reaction = Reaction(type=reaction_type, post_id=post_id, user_id=current_user.id)
     db.session.add(reaction)
     db.session.commit()
-    socketio.emit('new_reaction', {'reaction_type': reaction_type, 'username': current_user.username, 'post_id': post_id}, to='/')
+    socketio.emit('new_reaction', {'reaction_type': reaction_type, 'username': current_user.username, 'post_id': post_id}, broadcast=True)
     return redirect(url_for('view_post', post_id=post_id))
 
 if __name__ == '__main__':

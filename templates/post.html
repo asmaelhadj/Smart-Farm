@@ -29,7 +29,7 @@
                 var comments = document.getElementById('comments');
                 var comment = document.createElement('div');
                 comment.innerHTML = `<p>${data.content} by ${data.username}</p>`;
-                comments.insertBefore(comment, comments.firstChild);
+                comments.appendChild(comment);
             }
         });
         socket.on('new_reaction', function(data) {
@@ -37,7 +37,7 @@
                 var reactions = document.getElementById('reactions');
                 var reaction = document.createElement('div');
                 reaction.innerHTML = `<p>${data.reaction_type} by ${data.username}</p>`;
-                reactions.insertBefore(reaction, reactions.firstChild);
+                reactions.appendChild(reaction);
             }
         });
     </script>

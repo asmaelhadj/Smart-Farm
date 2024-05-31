@@ -23,7 +23,8 @@
         socket.on('new_post', function(data) {
             var posts = document.getElementById('posts');
             var post = document.createElement('div');
-            post.innerHTML = `<p>${data.content} by ${data.username}</p>`;
+            post.id = 'post_' + data.post_id;
+            post.innerHTML = `<p>${data.content} by ${data.username}</p><a href="/post/${data.post_id}">View</a>`;
             posts.insertBefore(post, posts.firstChild);
         });
     </script>
