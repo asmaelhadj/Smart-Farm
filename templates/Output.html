@@ -58,6 +58,9 @@
             <h5>Prediction Probabilities:</h5>
             <img src="{{ url_for('static', filename=data[2].split('static/')[1]) }}" alt="Probability Plot" class="img-fluid rounded">
         </div>
+        <div class="disease-details">
+            {% include 'disease_detail.html' with context %}
+        </div>
         <div class="text-center mt-4">
             <a href="/" class="btn btn-primary">Upload Another Image</a>
         </div>

@@ -268,7 +268,10 @@ def predict_and_plot(model, img_arr, result_map, count):
     plt.savefig(plot_path, bbox_inches='tight', dpi=150)
     plt.close()
 
-    return result, probability, plot_path
+    # Fetch the disease details from the database
+    disease = Disease.query.filter_by(name=result).first()
+
+    return result, probability, plot_path, disease
 
 @app.route('/predictiongrape', methods=['POST'])
 def predictiongrape():
@@ -280,16 +283,16 @@ def predictiongrape():
     img_arr = preprocess_image(img_path)
     
     result_map = {
-        0: "Black Rot",
-        1: "Esca (Black Measles)",
-        2: "Leaf Blight",
+        0: "Diseased: Black rot",
+        1: "Diseased: Esca (Black Measles)",
+        2: "Diseased: Leaf blight (Isariopsis)",
         3: "Healthy"
     }
     
-    result, probability, plot_path = predict_and_plot(model_grape, img_arr, result_map, COUNT)
+    result, probability, plot_path, disease = predict_and_plot(model_grape, img_arr, result_map, COUNT)
     
     COUNT += 1
-    return render_template('Output.html', data=[result, probability, plot_path, img_path])
+    return render_template('Output.html', data=[result, probability, plot_path, img_path], disease=disease)
 
 @app.route('/predictioncorn', methods=['POST'])
 def predictioncorn():
@@ -301,16 +304,16 @@ def predictioncorn():
     img_arr = preprocess_image(img_path)
     
     result_map = {
-        0: "Blight",
-        1: "Common Rust",
-        2: "Gray Leaf Spot",
+        0: "Diseased: Northern Leaf Blight",
+        1: "Diseased: Common rust",
+        2: "Diseased: Cercospora leaf spot",
         3: "Healthy"
     }
     
-    result, probability, plot_path = predict_and_plot(model_corn, img_arr, result_map, COUNT)
+    result, probability, plot_path, disease = predict_and_plot(model_corn, img_arr, result_map, COUNT)
     
     COUNT += 1
-    return render_template('Output.html', data=[result, probability, plot_path, img_path])
+    return render_template('Output.html', data=[result, probability, plot_path, img_path], disease=disease)
 
 @app.route('/predictionapple', methods=['POST'])
 def predictionapple():
@@ -322,16 +325,16 @@ def predictionapple():
     img_arr = preprocess_image(img_path)
     
     result_map = {
-        0: "Apple scab",
-        1: "Black rot",
-        2: "Cedar apple rust",
+        0: "Diseased: Scab",
+        1: "Diseased: Black rot",
+        2: "Diseased: Cedar apple rust",
         3: "Healthy"
     }
     
-    result, probability, plot_path = predict_and_plot(model_apple, img_arr, result_map, COUNT)
+    result, probability, plot_path, disease = predict_and_plot(model_apple, img_arr, result_map, COUNT)
     
     COUNT += 1
-    return render_template('Output.html', data=[result, probability, plot_path, img_path])
+    return render_template('Output.html', data=[result, probability, plot_path, img_path], disease=disease)
 
 @app.route('/predictionpotato', methods=['POST'])
 def predictionpotato():
@@ -343,15 +346,15 @@ def predictionpotato():
     img_arr = preprocess_image(img_path)
     
     result_map = {
-        0: "Early Blight",
-        1: "Late Blight",
+        0: "Diseased: Early blight",
+        1: "Diseased: Late blight",
         2: "Healthy"
     }
     
-    result, probability, plot_path = predict_and_plot(model_potato, img_arr, result_map, COUNT)
+    result, probability, plot_path, disease = predict_and_plot(model_potato, img_arr, result_map, COUNT)
     
     COUNT += 1
-    return render_template('Output.html', data=[result, probability, plot_path, img_path])
+    return render_template('Output.html', data=[result, probability, plot_path, img_path], disease=disease)
 
 @app.route('/predictiontomato', methods=['POST'])
 def predictiontomato():
@@ -363,22 +366,22 @@ def predictiontomato():
     img_arr = preprocess_image(img_path)
     
     result_map = {
-        0: "Bacterial Spot",
-        1: "Early Blight",
-        2: "Late Blight",
-        3: "Leaf Mold",
-        4: "Septoria Leaf Spot",
-        5: "Spider Mites",
-        6: "Target Spot",
-        7: "Yellow Leaf Curl Virus",
-        8: "Mosaic Virus",
+        0: "Diseased: Bacterial spot",
+        1: "Diseased: Early Blight",
+        2: "Diseased: Late Blight",
+        3: "Diseased: Leaf Mold",
+        4: "Diseased: Septoria Leaf Spot",
+        5: "Diseased: Two-spotted spider mite",
+        6: "Diseased: Target Spot",
+        7: "Diseased: Yellow Leaf Curl Virus",
+        8: "Diseased: Tomato mosaic virus",
         9: "Healthy"
     }
     
-    result, probability, plot_path = predict_and_plot(model_tomato, img_arr, result_map, COUNT)
+    result, probability, plot_path, disease = predict_and_plot(model_tomato, img_arr, result_map, COUNT)
     
     COUNT += 1
-    return render_template('Output.html', data=[result, probability, plot_path, img_path])
+    return render_template('Output.html', data=[result, probability, plot_path, img_path], disease=disease)
 
 
 @app.route('/load_img')
