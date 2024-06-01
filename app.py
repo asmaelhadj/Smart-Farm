@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from flask_socketio import SocketIO, send, emit
 import tensorflow as tf
+from datetime import datetime
 # Load environment variables from .env file
 load_dotenv()
 
@@ -78,12 +79,14 @@ class Disease(db.Model):
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('posts', lazy=True))
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('comments', lazy=True))
@@ -369,8 +372,15 @@ def load_img():
 @app.route('/posts')
 @login_required
 def posts():
-    posts = Post.query.all()
-    return render_template('Posts.html', posts=posts)
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    posts_with_comments = []
+    for post in posts:
+        recent_comment = Comment.query.filter_by(post_id=post.id).order_by(Comment.timestamp.desc()).first()
+        posts_with_comments.append({
+            'post': post,
+            'recent_comment': recent_comment
+        })
+    return render_template('posts.html', posts_with_comments=posts_with_comments)
 
 @app.route('/create_post', methods=['POST'])
 @login_required
@@ -380,7 +390,7 @@ def create_post():
         post = Post(content=content, user_id=current_user.id)
         db.session.add(post)
         db.session.commit()
-        socketio.emit('new_post', {'content': content, 'username': current_user.username, 'post_id': post.id}, broadcast=True)
+        socketio.emit('new_post', {'content': content, 'username': current_user.username, 'post_id': post.id, 'timestamp': post.timestamp.strftime('%Y-%m-%d %H:%M:%S')}, broadcast=True)
     return redirect(url_for('posts'))
 
 @app.route('/post/<int:post_id>', methods=['GET', 'POST'])
@@ -393,8 +403,16 @@ def view_post(post_id):
             comment = Comment(content=content, post_id=post.id, user_id=current_user.id)
             db.session.add(comment)
             db.session.commit()
-            socketio.emit('new_comment', {'content': content, 'username': current_user.username, 'post_id': post.id}, broadcast=True)
-    return render_template('post.html', post=post)
+            socketio.emit('new_comment', {
+                'content': content,
+                'username': current_user.username,
+                'post_id': post.id,
+                'comment_id': comment.id,
+                'timestamp': comment.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+            }, broadcast=True)
+    comments = Comment.query.filter_by(post_id=post.id).order_by(Comment.timestamp.asc()).all()
+    return render_template('post.html', post=post, comments=comments)
+
 
 @app.route('/react/<int:post_id>/<reaction_type>')
 @login_required
@@ -403,6 +421,25 @@ def react(post_id, reaction_type):
     db.session.add(reaction)
     db.session.commit()
     socketio.emit('new_reaction', {'reaction_type': reaction_type, 'username': current_user.username, 'post_id': post_id}, broadcast=True)
+    return redirect(url_for('view_post', post_id=post_id))
+
+@app.route('/comment', methods=['POST'])
+@login_required
+def comment():
+    post_id = request.form.get('post_id')
+    content = request.form.get('content')
+    if content and post_id:
+        post = Post.query.get_or_404(post_id)
+        comment = Comment(content=content, post_id=post.id, user_id=current_user.id)
+        db.session.add(comment)
+        db.session.commit()
+        socketio.emit('new_comment', {
+            'content': content,
+            'username': current_user.username,
+            'post_id': post.id,
+            'comment_id': comment.id,
+            'timestamp': comment.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        }, broadcast=True)
     return redirect(url_for('view_post', post_id=post_id))
 
 if __name__ == '__main__':
