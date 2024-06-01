@@ -1,0 +1,14 @@
+df-messenger {
+    --df-messenger-bot-message: #878fac;
+    --df-messenger-button-titlebar-color: #df713b;
+    --df-messenger-chat-background-color: #fafafa;
+    --df-messenger-font-color: black;
+    --df-messenger-send-icon: #df713b;
+    --df-messenger-user-message: #479b3d;
+}
+/* Adjust the position of the chat bubble */
+df-messenger {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+}
