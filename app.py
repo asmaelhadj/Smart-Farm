@@ -190,7 +190,7 @@ def leaf_detection():
     return render_template('leaf_detection.html')
 
 @app.route('/inputapple')
-def inputcotton():
+def inputapple():
     return render_template('prediction_apple.html')
 
 
@@ -312,8 +312,26 @@ def predictioncorn():
     COUNT += 1
     return render_template('Output.html', data=[result, probability, plot_path, img_path])
 
-
-
+@app.route('/predictionapple', methods=['POST'])
+def predictionapple():
+    global COUNT
+    img = request.files['image']
+    img_path = f'static/img/{COUNT}.jpg'
+    img.save(img_path)
+    
+    img_arr = preprocess_image(img_path)
+    
+    result_map = {
+        0: "Apple scab",
+        1: "Black rot",
+        2: "Cedar apple rust",
+        3: "Healthy"
+    }
+    
+    result, probability, plot_path = predict_and_plot(model_apple, img_arr, result_map, COUNT)
+    
+    COUNT += 1
+    return render_template('Output.html', data=[result, probability, plot_path, img_path])
 
 @app.route('/predictionpotato', methods=['POST'])
 def predictionpotato():
