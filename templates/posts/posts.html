@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Posts</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #e8f5e9;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <a href="/">Back to Home</a>
+    <div class="container">
+        <h1 class="display-4 text-center">Posts</h1>
+        <form action="/create_post" method="POST" class="mb-4">
+            <div class="form-group">
+                <textarea class="form-control" name="content" rows="3" placeholder="What's on your mind?" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Post</button>
+        </form>
+        <hr>
+        <div id="posts">
+            {% for item in posts_with_comments %}
+            <div class="post">
+                <p>{{ item.post.content }} by 
+                    {% if item.post.user.id == current_user.id %}
+                        me
+                    {% else %}
+                        {{ item.post.user.username }}
+                    {% endif %}
+                </p>
+                <small class="text-muted">{{ item.post.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                {% if item.recent_comment %}
+                    <div class="comment mt-2">
+                        <strong>{{ item.recent_comment.user.username }}:</strong> {{ item.recent_comment.content }}
+                        <small class="text-muted">{{ item.recent_comment.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                    </div>
+                {% endif %}
+                <a href="/post/{{ item.post.id }}" class="btn btn-link">View all comments</a>
+                <form action="/comment" method="POST" class="mt-2">
+                    <input type="hidden" name="post_id" value="{{ item.post.id }}">
+                    <div class="form-group">
+                        <textarea class="form-control" name="content" rows="2" placeholder="Add a comment" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-secondary btn-sm">Comment</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        var socket = io();
+        socket.on('new_post', function(data) {
+            var posts = document.getElementById('posts');
+            var post = document.createElement('div');
+            post.id = 'post_' + data.post_id;
+            post.innerHTML = `
+                <div class="mb-4 p-3 border rounded">
+                    <p>${data.content} by ${data.username}</p>
+                    <small class="text-muted">${data.timestamp}</small>
+                    <div class="comments mt-3">
+                        <!-- New posts initially have no comments -->
+                    </div>
+                    <form action="/comment" method="POST" class="mt-2">
+                        <input type="hidden" name="post_id" value="${data.post_id}">
+                        <div class="form-group">
+                            <textarea class="form-control" name="content" rows="2" placeholder="Add a comment" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-secondary btn-sm">Comment</button>
+                    </form>
+                </div>
+            `;
+            posts.insertBefore(post, posts.firstChild);
+        });
+        socket.on('new_comment', function(data) {
+            var post = document.getElementById('post_' + data.post_id);
+            var commentsDiv = post.querySelector('.comments');
+            var commentDiv = document.createElement('div');
+            commentDiv.classList.add('comment', 'mb-2', 'p-2', 'border', 'rounded');
+            commentDiv.innerHTML = `
+                <strong>${data.username}:</strong> ${data.content}
+                <small class="text-muted">${data.timestamp}</small>
+            `;
+            commentsDiv.appendChild(commentDiv);
+        });
+    </script>
+</body>
+</html>

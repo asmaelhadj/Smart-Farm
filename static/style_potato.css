@@ -5,19 +5,6 @@ h1{
     color: rgb(48, 20, 20);
 }
 
-h3{
-    font-size: 20px;
-    font-family: cursive;
-    font-weight: bold;
-    color:#FFD700;
-}
-
-h4{
-    font-size: 15px;
-    font-family: cursive;
-    font-weight: bold;
-}
-
 
 img{
     width: 350px;
@@ -30,40 +17,6 @@ body{
 
     background-image: url("potato2.jpg");
     margin : 0px;
-}
-
-h2{
-font-size: 20px;
-color: darkred;
-font-family: Apple Chancery;
-margin-top: -30px;
-}
-
-
-.video {
-    background: darkred;
-    background-image: -webkit-linear-gradient(top, darkred, #D0C31E);
-    background-image: -moz-linear-gradient(top,darkred, #D0C31E);
-background-image: -ms-linear-gradient(top, darkred, #D0C31E);
-background-image: -o-linear-gradient(top, darkred, #D0C31E);
-background-image: linear-gradient(to bottom, darkred, #D0C31E);
--webkit-border-radius: 20px;
--moz-border-radius: 20px;
-border-radius: 20px;
-color: #FFFFFF;
-font-family: Verdana;
-font-size: 15px;
-font-weight: 100;
-padding: 10px;
-box-shadow: 1px 1px 20px 0px #000000;
--webkit-box-shadow: 1px 1px 20px 0px #000000;
--moz-box-shadow: 1px 1px 20px 0px #000000;
-text-shadow: 1px 1px 20px #000000;
-border: solid #337FED 1px;
-text-decoration: none;
-display: inline-block;
-cursor: pointer;
-text-align: center;
 }
 
 
@@ -109,20 +62,4 @@ text-align: center;
     height: 100px;
     padding-top: 70px;
     margin-bottom: 90px;
-}
-
-span{
-    color: Black;
-}
-
-.footer {
-   position: fixed;
-   left: 0;
-   bottom: 0;
-   width: 100%;
-   background-color: #000000;
-   color: white;
-   text-align: center;
-      height: 50px;
-   padding: 0px;
 }

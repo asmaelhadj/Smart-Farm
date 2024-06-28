@@ -4,7 +4,7 @@ def add_diseases():
     diseases = [
         # Apple diseases
         Disease(
-            name="Healthy",
+            name="Healthy apple",
             plant_type="Apple",
             symptoms="No visible signs of disease. Leaves are green and lush, fruit is developing normally.",
             causes="Optimal growth conditions, adequate nutrition, and absence of pests and diseases.",
@@ -34,7 +34,7 @@ def add_diseases():
         
         # Corn diseases
         Disease(
-            name="Healthy",
+            name="Healthy corn",
             plant_type="Corn",
             symptoms="No visible signs of disease. Leaves are green and vigorous, with ears developing normally.",
             causes="Optimal growth conditions, adequate nutrition, and absence of pests and diseases.",
@@ -64,7 +64,7 @@ def add_diseases():
         
         # Grape diseases
         Disease(
-            name="Healthy",
+            name="Healthy grape",
             plant_type="Grapes",
             symptoms="No visible signs of disease. Leaves are green and vigorous, with clusters developing normally.",
             causes="Optimal growth conditions, adequate nutrition, and absence of pests and diseases.",
@@ -94,7 +94,7 @@ def add_diseases():
         
         # Potato diseases
         Disease(
-            name="Healthy",
+            name="Healthy potato",
             plant_type="Potato",
             symptoms="No visible signs of disease. Leaves are green and vigorous, with tubers developing normally.",
             causes="Optimal growth conditions, adequate nutrition, and absence of pests and diseases.",
@@ -117,7 +117,7 @@ def add_diseases():
         
         # Tomato diseases
         Disease(
-            name="Healthy",
+            name="Healthy tomato",
             plant_type="Tomato",
             symptoms="No visible signs of disease. Leaves are green and vigorous, with fruit developing normally.",
             causes="Optimal growth conditions, adequate nutrition, and absence of pests and diseases.",
@@ -145,32 +145,11 @@ def add_diseases():
             treatments="Apply fungicides at the first sign of disease. Rotate crops and use resistant varieties if available."
         ),
         Disease(
-            name="Diseased: Leaf Mold",
-            plant_type="Tomato",
-            symptoms="Yellow spots on upper leaf surfaces, with gray or olive-green mold on the undersides.",
-            causes="Caused by the fungus Passalora fulva. The disease thrives in high humidity and poor air circulation.",
-            treatments="Apply fungicides. Improve air circulation and avoid overhead watering."
-        ),
-        Disease(
             name="Diseased: Septoria leaf spot",
             plant_type="Tomato",
             symptoms="Small, circular lesions on leaves with dark borders. Severe infections can cause significant defoliation.",
             causes="Caused by the fungus Septoria lycopersici. The disease thrives in warm, wet conditions.",
             treatments="Apply fungicides at the first sign of disease. Rotate crops and use resistant varieties if available."
-        ),
-        Disease(
-            name="Diseased: Two-spotted spider mite",
-            plant_type="Tomato",
-            symptoms="Yellow stippling on leaves, webbing on undersides of leaves, and defoliation in severe cases.",
-            causes="Caused by the pest Tetranychus urticae. The pest thrives in hot, dry conditions.",
-            treatments="Apply miticides. Increase humidity and use biological controls like predatory mites."
-        ),
-        Disease(
-            name="Diseased: Target Spot",
-            plant_type="Tomato",
-            symptoms="Circular lesions with concentric rings on leaves and fruit. Severe infections can cause defoliation.",
-            causes="Caused by the fungus Corynespora cassiicola. The disease thrives in warm, wet conditions.",
-            treatments="Apply fungicides. Rotate crops and avoid overhead watering to reduce the spread of the disease."
         ),
         Disease(
             name="Diseased: Yellow Leaf Curl Virus",
@@ -179,13 +158,6 @@ def add_diseases():
             causes="Caused by the Tomato yellow leaf curl virus (TYLCV), transmitted by whiteflies.",
             treatments="Control whitefly populations using insecticides and reflective mulches. Use resistant varieties if available."
         ),
-        Disease(
-            name="Diseased: Tomato mosaic virus",
-            plant_type="Tomato",
-            symptoms="Mottled, mosaic-like pattern on leaves, stunted growth, and reduced yield.",
-            causes="Caused by the Tomato mosaic virus (ToMV), which is transmitted through contaminated tools and hands.",
-            treatments="Use virus-free seeds and transplants. Sanitize tools and hands frequently. Use resistant varieties if available."
-        )
     ]
 
     for disease in diseases:

@@ -1,13 +1,13 @@
 from flask import Flask, render_template, request, send_from_directory, redirect, url_for, flash
-import cv2
-import pickle
-import joblib
-import numpy as np
-from sklearn.svm import SVC
-from keras.models import load_model
-from flask_mail import Mail, Message
-from dotenv import load_dotenv
 import os
+from datetime import datetime
+
+import cv2
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import load_model
+
+from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -16,47 +16,49 @@ from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Email
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.exc import IntegrityError
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 from flask_socketio import SocketIO, send, emit
-import tensorflow as tf
-from datetime import datetime
+from dotenv import load_dotenv
+
 # Load environment variables from .env file
 load_dotenv()
 
 #load model
-model_corn =load_model("AG_Corn_Plant_VGG19 .h5")
-#model_cotton =load_model("AG_COTTON_plant_VGG19.h5")
-model_grape= load_model("AI_Grape.h5")
-model_potato= load_model("AI_Potato_VGG19.h5")
-model_tomato= load_model("AI_Tomato_model_inception.h5")
+model_corn =load_model("modelsAI/cornFinalAI.h5")
+model_apple =load_model("modelsAI/appleFinalAI.h5")
+model_grape= load_model("modelsAI/grapeFinalAI.h5")
+model_potato= load_model("modelsAI/potatoFinalAI.h5")
+model_tomato= load_model("modelsAI/tomatoFinalAI.h5")
+model_general= load_model("modelsAI/generalFinalAI.h5")
 
 
 COUNT = 0
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 1
 
-app.secret_key = os.getenv('SECRET_KEY')  # Generates a random secret key each time the app starts
+# Configuration class
+class Config:
+    SECRET_KEY = os.getenv('SECRET_KEY')
+    SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    MAIL_SERVER = os.getenv('MAIL_SERVER')
+    MAIL_PORT = int(os.getenv('MAIL_PORT'))
+    MAIL_USE_TLS = os.getenv('MAIL_USE_TLS').lower() in ['true', '1', 't']
+    MAIL_USERNAME = os.getenv('MAIL_USERNAME')
+    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER')
 
-# Define the base directory of the application
-basedir = os.path.abspath(os.path.dirname(__file__))
-
-# Configure SQLite database URI
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:1234@localhost/farm'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# Flask-Mail configuration
-app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
-app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
-app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS').lower() in ['true', '1', 't']
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+app.config.from_object(Config)
 
 # Initialize extensions
 db = SQLAlchemy(app)
 mail = Mail(app)
 socketio = SocketIO(app)
+migrate = Migrate(app, db)
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 
 #define database models
 class User(db.Model, UserMixin):
@@ -91,22 +93,12 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('comments', lazy=True))
 
-class Reaction(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(50), nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', backref=db.backref('reactions', lazy=True))
 
-migrate = Migrate(app, db)
-# Initialize Flask-Login
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+#forms
 # Registration Form
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired()])
@@ -114,6 +106,13 @@ class RegistrationForm(FlaskForm):
     password = PasswordField('Password', validators=[InputRequired()])
     submit = SubmitField('Register')
 
+# Login Form
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[InputRequired()])
+    password = PasswordField('Password', validators=[InputRequired()])
+    submit = SubmitField('Login')
+
+#Routes
 # Registration Route
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -132,13 +131,8 @@ def register():
             except IntegrityError:
                 db.session.rollback()
                 flash('Email already exists. Please use a different email.', 'danger')
-    return render_template('register.html', form=form)  # Passing the form object to the template
+    return render_template('auth/register.html', form=form)  # Passing the form object to the template
 
-# Login Form
-class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[InputRequired()])
-    password = PasswordField('Password', validators=[InputRequired()])
-    submit = SubmitField('Login')
 
 # Login Route
 @app.route('/login', methods=['GET', 'POST'])
@@ -152,7 +146,7 @@ def login():
             return redirect(url_for('home'))
         else:
             flash('Invalid username or password. Please try again.', 'danger')
-    return render_template('login.html', form=form)
+    return render_template('auth/login.html', form=form)
 
 # Logout Route
 @app.route('/logout')
@@ -189,26 +183,30 @@ def data():
 def leaf_detection():
     return render_template('leaf_detection.html')
 
+@app.route('/inputgeneral')
+def inputgeneral():
+    return render_template('predictions/prediction_general.html')
+
 @app.route('/inputapple')
 def inputapple():
-    return render_template('prediction_apple.html')
+    return render_template('predictions/prediction_apple.html')
 
 
 @app.route('/inputcorn')
 def inputcorn():
-    return render_template('prediction_Corn.html')
+    return render_template('predictions/prediction_Corn.html')
 
 @app.route('/inputgrape')
 def inputgrape():
-    return render_template('prediction_Grape.html')
+    return render_template('predictions/prediction_Grape.html')
 
 @app.route('/inputpotato')
 def inputpotato():
-    return render_template('prediction_potato.html')
+    return render_template('predictions/prediction_potato.html')
 
 @app.route('/inputtomato')
 def inputtomato():
-    return render_template('prediction_tomato.html')
+    return render_template('predictions/prediction_tomato.html')
 
 
 @app.route('/diseases')
@@ -228,30 +226,33 @@ def list_diseases():
     # Extract unique plant types from the filtered diseases
     plant_types = list(set(disease.plant_type for disease in diseases))
 
-    return render_template('diseases.html', diseases=diseases, plant_types=plant_types)
+    return render_template('diseases/diseases.html', diseases=diseases, plant_types=plant_types)
 
 @app.route('/disease/<int:disease_id>')
 def disease_detail(disease_id):
     disease = Disease.query.get_or_404(disease_id)
-    return render_template('disease_detail.html', disease=disease)
+    return render_template('diseases/disease_detail.html', disease=disease)
 
 def preprocess_image(image_path):
     img_arr = cv2.imread(image_path)
     img_arr = cv2.cvtColor(img_arr, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
     img_arr = tf.convert_to_tensor(img_arr, dtype=tf.float32)
-    img_arr = tf.image.resize(img_arr, [224, 224]) / 255.0  # Resize and rescale
+    img_arr = tf.image.resize(img_arr, [128, 128])  # Resize and rescale
     img_arr = tf.expand_dims(img_arr, axis=0)  # Add batch dimension
     return img_arr
 
 def predict_and_plot(model, img_arr, result_map, count):
     predictions = model.predict(img_arr)
+    print("Predictions array:", predictions)
     prediction = np.argmax(predictions, axis=1)[0]
+    print("Predicted index:", prediction)
     probability = predictions[0][prediction]
 
     result = result_map.get(prediction, "Unknown")
 
     # Plot the probabilities
     classes = list(result_map.values())
+    print (classes)
     probabilities = predictions[0]
 
     plt.figure(figsize=(10, 6))
@@ -273,6 +274,45 @@ def predict_and_plot(model, img_arr, result_map, count):
 
     return result, probability, plot_path, disease
 
+@app.route('/predictiongeneral', methods=['POST'])
+def predictiongeneral():
+    global COUNT
+    img = request.files['image']
+    img_path = f'static/img/{COUNT}.jpg'
+    img.save(img_path)
+    
+    img_arr = preprocess_image(img_path)
+    
+    result_map = {
+        0: "Diseased: Scab",
+        1: "Diseased: Black rot",
+        2: "Diseased: Cedar apple rust",
+        3: "Healthy apple",
+        4: "Diseased: Northern Leaf Blight",
+        5: "Diseased: Common rust",
+        6: "Diseased: Cercospora leaf spot",
+        7: "Healthy corn",
+        8: "Diseased: Black rot",
+        9: "Diseased: Esca (Black Measles)",
+        10: "Diseased: Leaf blight (Isariopsis)",
+        11: "Healthy grape",
+        12: "Diseased: Early blight",
+        13: "Diseased: Late blight",
+        14: "Healthy potato",
+        15: "Diseased: Bacterial spot",
+        16: "Diseased: Early Blight",
+        17: "Diseased: Late Blight",
+        18: "Diseased: Septoria Leaf Spot",
+        19: "Diseased: Yellow Leaf Curl Virus",
+        20: "Healthy tomato"
+        }
+    
+    result, probability, plot_path, disease = predict_and_plot(model_general, img_arr, result_map, COUNT)
+    
+    COUNT += 1
+    return render_template('Output.html', data=[result, probability, plot_path, img_path], disease=disease)
+
+
 @app.route('/predictiongrape', methods=['POST'])
 def predictiongrape():
     global COUNT
@@ -286,7 +326,7 @@ def predictiongrape():
         0: "Diseased: Black rot",
         1: "Diseased: Esca (Black Measles)",
         2: "Diseased: Leaf blight (Isariopsis)",
-        3: "Healthy"
+        3: "Healthy grape"
     }
     
     result, probability, plot_path, disease = predict_and_plot(model_grape, img_arr, result_map, COUNT)
@@ -304,10 +344,10 @@ def predictioncorn():
     img_arr = preprocess_image(img_path)
     
     result_map = {
-        0: "Diseased: Northern Leaf Blight",
+        0: "Diseased: Cercospora leaf spot",
         1: "Diseased: Common rust",
-        2: "Diseased: Cercospora leaf spot",
-        3: "Healthy"
+        2: "Diseased: Northern Leaf Blight",
+        3: "Healthy corn"
     }
     
     result, probability, plot_path, disease = predict_and_plot(model_corn, img_arr, result_map, COUNT)
@@ -328,7 +368,7 @@ def predictionapple():
         0: "Diseased: Scab",
         1: "Diseased: Black rot",
         2: "Diseased: Cedar apple rust",
-        3: "Healthy"
+        3: "Healthy apple"
     }
     
     result, probability, plot_path, disease = predict_and_plot(model_apple, img_arr, result_map, COUNT)
@@ -348,7 +388,7 @@ def predictionpotato():
     result_map = {
         0: "Diseased: Early blight",
         1: "Diseased: Late blight",
-        2: "Healthy"
+        2: "Healthy potato"
     }
     
     result, probability, plot_path, disease = predict_and_plot(model_potato, img_arr, result_map, COUNT)
@@ -369,13 +409,9 @@ def predictiontomato():
         0: "Diseased: Bacterial spot",
         1: "Diseased: Early Blight",
         2: "Diseased: Late Blight",
-        3: "Diseased: Leaf Mold",
-        4: "Diseased: Septoria Leaf Spot",
-        5: "Diseased: Two-spotted spider mite",
-        6: "Diseased: Target Spot",
-        7: "Diseased: Yellow Leaf Curl Virus",
-        8: "Diseased: Tomato mosaic virus",
-        9: "Healthy"
+        3: "Diseased: Septoria Leaf Spot",
+        4: "Diseased: Yellow Leaf Curl Virus",
+        5: "Healthy tomato"
     }
     
     result, probability, plot_path, disease = predict_and_plot(model_tomato, img_arr, result_map, COUNT)
@@ -401,7 +437,7 @@ def posts():
             'post': post,
             'recent_comment': recent_comment
         })
-    return render_template('posts.html', posts_with_comments=posts_with_comments)
+    return render_template('posts/posts.html', posts_with_comments=posts_with_comments)
 
 @app.route('/create_post', methods=['POST'])
 @login_required
@@ -432,17 +468,8 @@ def view_post(post_id):
                 'timestamp': comment.timestamp.strftime('%Y-%m-%d %H:%M:%S')
             }, broadcast=True)
     comments = Comment.query.filter_by(post_id=post.id).order_by(Comment.timestamp.asc()).all()
-    return render_template('post.html', post=post, comments=comments)
+    return render_template('posts/post.html', post=post, comments=comments)
 
-
-@app.route('/react/<int:post_id>/<reaction_type>')
-@login_required
-def react(post_id, reaction_type):
-    reaction = Reaction(type=reaction_type, post_id=post_id, user_id=current_user.id)
-    db.session.add(reaction)
-    db.session.commit()
-    socketio.emit('new_reaction', {'reaction_type': reaction_type, 'username': current_user.username, 'post_id': post_id}, broadcast=True)
-    return redirect(url_for('view_post', post_id=post_id))
 
 @app.route('/comment', methods=['POST'])
 @login_required

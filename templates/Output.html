@@ -59,10 +59,10 @@
             <img src="{{ url_for('static', filename=data[2].split('static/')[1]) }}" alt="Probability Plot" class="img-fluid rounded">
         </div>
         <div class="disease-details">
-            {% include 'disease_detail.html' with context %}
+            {% include 'diseases/disease_detail.html' with context %}
         </div>
         <div class="text-center mt-4">
-            <a href="/" class="btn btn-primary">Upload Another Image</a>
+            <a href="/" class="btn btn-primary">Back to Home</a>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

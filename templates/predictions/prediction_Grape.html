@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Grape Plant Leaf Disease Detection</title>
+        <meta charset="UTF-8">
+<!--        <link href="static/style_index.css" rel="stylesheet">-->
+        <link rel="stylesheet" href="{{url_for('static',filename='style_grape.css')}}">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grape Plant Leaf Detection</title>
+    <link  rel="stylesheet" href="{{url_for('static',filename='popup.css')}}">
+
+    </head>
+    <body>
+        <div class='cont' >
+            <h1>Grape Plant Leaf Disease Detection</h1>
+        </div>
+        <center>
+        <form method="POST" action="{{url_for('predictiongrape')}}" enctype="multipart/form-data">
+            <input type="file" name='image' class='btn'><br><br><br>
+            <input type="submit" class='btn'>
+        </form>
+
+
+
+    </center>
+
+    </body>
+</html>
